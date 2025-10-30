@@ -12,6 +12,38 @@
 #include <Audio.h>
 #include <FreeRTOS.h>
 #include <task.h>
+#include <drum_v0_p0_long.h>
+#include <drum_v0_p0_short.h>
+#include <drum_v0_p1_long.h>
+#include <drum_v0_p1_short.h>
+#include <drum_v0_p2_long.h>
+#include <drum_v0_p2_short.h>
+#include <drum_v0_p3_long.h>
+#include <drum_v0_p3_short.h>
+#include <drum_v0_p4_long.h>
+#include <drum_v0_p4_short.h>
+
+#include <drum_v1_p0_long.h>
+#include <drum_v1_p0_short.h>
+#include <drum_v1_p1_long.h>
+#include <drum_v1_p1_short.h>
+#include <drum_v1_p2_long.h>
+#include <drum_v1_p2_short.h>
+#include <drum_v1_p3_long.h>
+#include <drum_v1_p3_short.h>
+#include <drum_v1_p4_long.h>
+#include <drum_v1_p4_short.h>
+
+#include <drum_v2_p0_long.h>
+#include <drum_v2_p0_short.h>
+#include <drum_v2_p1_long.h>
+#include <drum_v2_p1_short.h>
+#include <drum_v2_p2_long.h>
+#include <drum_v2_p2_short.h>
+#include <drum_v2_p3_long.h>
+#include <drum_v2_p3_short.h>
+#include <drum_v2_p4_long.h>
+#include <drum_v2_p4_short.h>
 
 // Include the headers you generated earlier (int16_t arrays)
 #include "drum_buffers.h"
