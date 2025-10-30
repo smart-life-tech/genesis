@@ -289,6 +289,7 @@ void setup()
 
   // ADC resolution
   analogReadResolution(ANALOG_RESOLUTION_BITS);
+  analogReadAveraging(1);   // no averaging (faster reads)
 
   // initialize smoothing value to current flex reading
   smoothedFlex = analogRead(FLEX_PIN);
