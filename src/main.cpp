@@ -102,8 +102,7 @@ volatile uint16_t lastPiezoRimSample = 0;
 
 // mutex substitute: use noInterrupts/interrupts or a light spinlock if needed
 // We'll use noInterrupts/interrupts for short critical regions.
-#define FLEX_MIN 400
-#define FLEX_MAX 900
+
 #define FLEX_NOTES 5
 #define FLEX_EXPONENT 1.8f // >1 = exponential, <1 = logarithmic feel
 
@@ -291,6 +290,7 @@ void PlayTask(void *pvParameters)
     interrupts();
 
     bool rimHit = (piezoR > piezoC);
+    Serial.println(rimHit ? "Rim hit" : "Center hit");
 
     int velIdx = piezoToVelocityLayer(max(piezoC, piezoR));
     int pitchIdx = flexToPitchIndex(smoothedFlex);
