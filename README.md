@@ -166,3 +166,77 @@ static const Note SENSOR_NOTES[4] = {
 ## License
 
 This implementation is part of the orbAudio project for educational and experimental purposes.
+
+  NOTES & INSTRUCTIONS:
+
+  1) Header generation:
+     - Use the Python script I provided earlier (generate_drum_headers.py) to produce
+       the pre-rendered headers for each velocity/pitch/release variant. The script
+       resamples and scales the base WAV to produce the required arrays.
+
+     - Make sure the generated arrays and the drum_buffers.h symbol names match exactly
+       the names referenced in getBufferForVariant() above:
+         drum_v{vel}_p{pitch}_long
+         drum_v{vel}_p{pitch}_long_len
+         drum_v{vel}_p{pitch}_short
+         drum_v{vel}_p{pitch}_short_len
+
+     - Example: drum_v1_p3_short is velocity layer 1, pitch index 3, short release.
+
+  2) sampleRate:
+     - The code assumes the generated headers are at 44100 Hz sample rate. If you generate
+       them at another sample rate, update the sampleRate constant used for cleanup delays.
+
+  3) Tuning thresholds:
+     - PIEZO_THRESHOLD, FSR_THRESHOLD, FLEX_MIN, FLEX_MAX must be tuned experimentally.
+     - For flexible calibration, you can add a serial calibration routine that prints raw ADC
+       values while you strike/bend sensors; then adjust constants.
+
+  4) Latency debugging:
+     - Connect a scope or logic analyzer to PIN_LATENCY_ISR and PIN_LATENCY_PLAY. The
+       delta between their rising edges is the ISR→PlayTask latency (including scheduling).
+     - Typical target: < 2 ms. If you see >2 ms, try:
+         * increasing PlayTask priority (already near max)
+         * reducing AudioMemory blocks (but keep enough)
+         * ensuring AudioPlayMemory.play() doesn't copy very large buffers (keep buffers reasonable)
+         * using DMA playback via AudioPlayQueue if necessary (I can add that code)
+
+  5) Memory:
+     - Precomputing 30 buffers can consume significant flash and RAM. Each int16_t sample is 2 bytes.
+       For a 0.5 sec buffer @ 44100 Hz that's ~44100 * 2 = 88 KB per buffer => 30 buffers ~ 2.6 MB.
+       Teensy 4.1 has ~2 MB of RAM but larger flash; typically such arrays are stored in flash (PROGMEM)
+       to save RAM. The Python generator should write arrays into flash by leaving them as const int16_t,
+       which the compiler may place in flash (flash usage allowed). If arrays exceed RAM, use
+       PROGMEM/ICACHE or store in external flash — but usually const arrays end up in flash (.text/.rodata)
+       not RAM. Monitor memory usage in compile logs.
+
+  6) If you need DMA-based playback (to avoid copying in player.play), say so — I will add a
+     fully worked AudioPlayQueue + memcpy-to-queue solution (a bit more code but faster).
+
+  7) Multi-pad expansion:
+     - The code is single-pad (center & rim) oriented, but the architecture supports more pads by
+       adding more ISR channels and mapping more buffers.
+
+  8) Safety:
+     - analogReadFast() is used inside ISR for speed. On Teensy it is implemented to be fast but
+       verify your version of Teensy core supports it. If analogReadFast isn't available, consider
+       using direct ADC registers or move to a high-priority polling task instead.
+
+  9) Debugging steps:
+     - If you get no sound, ensure Audio library is included and AudioMemory() is large enough.
+     - If you get overloaded CPU, reduce buffer lengths produced by the Python script or reduce
+       the number of velocity/pitch variants.
+
+  10) Next steps I can do for you:
+     - Add the DMA AudioPlayQueue variant (guaranteed faster write path).
+     - Add an automated tool that generates drum_buffers.h from filenames.
+     - Add a small web/serial UI to calibrate flex/FSR thresholds and persist to EEPROM.
+     - Provide the complete Python generator (I already provided earlier — I can make a second
+       version that writes all header files and a matching drum_buffers.h automatically).
+
+  If you want me to produce the DMA playqueue version (no copying, faster), or generate the
+  drum_buffers.h automatically as part of the Python tool, I’ll add that next.
+
+  Done — you now have a full Teensy sketch, with explicit mapping of all precomputed buffers,
+  ISR-driven hit detection, FreeRTOS PlayTask, smoothing, and latency test points.
+*/
