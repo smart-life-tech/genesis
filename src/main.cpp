@@ -102,7 +102,34 @@ volatile uint16_t lastPiezoRimSample = 0;
 
 // mutex substitute: use noInterrupts/interrupts or a light spinlock if needed
 // We'll use noInterrupts/interrupts for short critical regions.
+#define FLEX_MIN 400
+#define FLEX_MAX 900
+#define FLEX_NOTES 5
+#define FLEX_EXPONENT 1.8f // >1 = exponential, <1 = logarithmic feel
 
+int flexToPitchIndex(float flexValue)
+{
+  float clamped = constrain(flexValue, FLEX_MIN, FLEX_MAX);
+  float norm = (clamped - FLEX_MIN) / (FLEX_MAX - FLEX_MIN); // 0–1 linear
+
+  // Apply exponential curve (feel curve)
+  float curved = powf(norm, FLEX_EXPONENT); // try 1.6–2.2 for typical flex sensors
+
+  int idx = (int)(curved * (FLEX_NOTES - 1) + 0.5f);
+  return constrain(idx, 0, FLEX_NOTES - 1);
+}
+/*
+const int flexThresholds[5] = {410, 460, 530, 620, 750}; // example ADCs for each note
+
+int flexToPitchIndex(float flexValue)
+{
+  for (int i = 4; i >= 0; --i)
+    if (flexValue >= flexThresholds[i])
+      return i;
+  return 0;
+}
+
+*/
 // ------------------- Buffer descriptor -------------------
 // must match the headers you generated
 struct BufInfo
@@ -139,12 +166,12 @@ static inline int piezoToVelocityLayer(uint16_t piezoVal)
 }
 
 // convert smoothed flex to pitch index 0..4
-static inline int flexToPitchIndex(float flex)
-{
-  int idx = map((int)roundf(flex), FLEX_MIN, FLEX_MAX, 0, NOTE_STEPS - 1);
-  idx = clampi(idx, 0, NOTE_STEPS - 1);
-  return idx;
-}
+// static inline int flexToPitchIndex(float flex)
+// {
+//   int idx = map((int)roundf(flex), FLEX_MIN, FLEX_MAX, 0, NOTE_STEPS - 1);
+//   idx = clampi(idx, 0, NOTE_STEPS - 1);
+//   return idx;
+// }
 
 // ------------------- Buffer mapping implementation -------------------
 // same big switch as earlier, returning pointer + length from drum_buffers.h
@@ -321,7 +348,7 @@ void setup()
 
   // ADC resolution
   analogReadResolution(ANALOG_RESOLUTION_BITS);
-  analogReadAveraging(1);   // no averaging (faster reads)
+  analogReadAveraging(1); // no averaging (faster reads)
 
   // initialize smoothing value to current flex reading
   smoothedFlex = analogRead(FLEX_PIN);
