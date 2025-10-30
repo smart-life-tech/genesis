@@ -25,7 +25,8 @@ def write_header(name, data):
     header_path = os.path.join(OUT_DIR, f"{name}.h")
     with open(header_path, "w") as f:
         f.write(f"// Auto-generated from {BASE_WAV}\n")
-        f.write(f"#pragma once\nconst int16_t {name}[] = {{\n")
+        f.write(f"#pragma once\n#include <Arduino.h>\nconst int16_t {name}[] PROGMEM = {{\n")
+
         for i, v in enumerate(data_i16):
             if i % 16 == 0: f.write("    ")
             f.write(f"{int(v)}, ")
