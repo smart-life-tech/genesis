@@ -15,6 +15,8 @@
 
 // Include the headers you generated earlier (int16_t arrays)
 #include "drum_buffers.h"
+void piezoISR();
+#define analogReadFast(pin) analogRead(pin)
 
 // ------------------- Audio objects -------------------
 AudioPlayQueue queue1; // single queue object, accepts int16_t buffers

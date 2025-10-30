@@ -83,7 +83,3 @@ extern const unsigned int drum_v2_p4_long_len;
 extern const int16_t drum_v2_p4_short[];
 extern const unsigned int drum_v2_p4_short_len;
 // Function to get buffer pointer and length based on velocity, pitch, and release type
-struct BufInfo {
-  const int16_t* buf;
-  unsigned int len;
-};
