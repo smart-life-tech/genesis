@@ -9,7 +9,7 @@ import os, numpy as np, soundfile as sf
 from scipy.signal import resample
 
 # ===== User config =====
-BASE_WAV = "drum_base.wav"
+BASE_WAV = "base.wav"
 OUT_DIR = "headers"
 VEL_LEVELS = [0.6, 0.85, 1.0]     # soft, medium, hard multipliers
 PITCH_STEPS = [0, 2, 4, 7, 12]    # semitones relative to C4
